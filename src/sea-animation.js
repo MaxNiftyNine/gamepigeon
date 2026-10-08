@@ -1,0 +1,10 @@
+// Static arm64 source constants; frame-based motion is adapted to a 60 Hz clock.
+import {nativeActionProgress} from './native-action.js';
+export const SEA_NATIVE = Object.freeze({cellPitch:37,jetSpeedPerFrame:28,bombDuration:.75,bombOffsetDuration:.333,bombInitialOffset:40,bombFinalScale:.15,resultDelay:1.5,rippleDuration:.8,rippleInitialScale:.18,rippleFinalScale:2.6,targetRadiansPerFrame:-.05});
+const clamp = x => Math.max(0,Math.min(1,x));
+export function seaFlight(x,y,cellSize){const scale=cellSize/SEA_NATIVE.cellPitch,speed=SEA_NATIVE.jetSpeedPerFrame*scale;return {x,y,scale,startX:-100,releaseAt:Math.ceil((x+100)/speed)/60,speed:speed*60,age:0,released:false,impacted:false};}
+export function seaBomb(age){const scale=1-(1-SEA_NATIVE.bombFinalScale)*nativeActionProgress(age/SEA_NATIVE.bombDuration,1);const slide=1-nativeActionProgress(age/SEA_NATIVE.bombOffsetDuration,2);return {offset:-SEA_NATIVE.bombInitialOffset*slide*scale,scale,visible:age>=0&&age<SEA_NATIVE.bombDuration};}
+export function seaWaterRipple(age){const t=clamp(age/SEA_NATIVE.rippleDuration);return {scale:SEA_NATIVE.rippleInitialScale+(SEA_NATIVE.rippleFinalScale-SEA_NATIVE.rippleInitialScale)*t,alpha:1-t};}
+export function seaWaterMarker(age,perimeter=false){const t=Math.max(0,age);return {alpha:t<.5?(perimeter?.2*t/.5:.5-.3*t/.5):t<.8?.2+.8*(t-.5)/.3:1,scale:t<.5?.8-.4*t/.5:t<.8?.4+.8*(t-.5)/.3:t<1.1?1.2-.2*(t-.8)/.3:1};}
+export function makeSeaShake(sunk=false,random=Math.random){const duration=sunk ? .5 : .3,amp=sunk?20:15,vertical=Math.fround(amp*.65),count=Math.floor(Math.fround(duration/.04));return Array.from({length:count},()=>({x:Math.fround(Math.floor(random()*amp)-amp*.5),y:Math.fround(Math.floor(random()*vertical)-vertical*.5)}));}
+export function seaShakeOffset(shake,age){const step=Math.floor(Math.max(0,age)/.04),point=shake?.[step];if(!point||age<0)return {x:0,y:0};const t=(age-step*.04)/.02;const amount=t<=1?nativeActionProgress(t,2):1-nativeActionProgress(t-1,2);return {x:point.x*amount||0,y:point.y*amount||0};}

@@ -1,0 +1,4 @@
+// ConnectScene update: 0x1002485e4..0x1002486b0; source pitch45, vy-=1.2/frame.
+export const CONNECT_NATIVE = Object.freeze({cellPitch:45,gravityPerFrame:1.2,framesPerSecond:60,winBlinkHalfDuration:.3,winBlinkAlpha:.5});
+export function advanceConnectDrop(fall,dt){fall.remainder+=Math.max(0,dt);const step=1/CONNECT_NATIVE.framesPerSecond;while(fall.remainder+1e-12>=step){fall.remainder-=step;if(fall.nativeY>=fall.distance){fall.x=fall.targetX;fall.y=fall.targetY;fall.nativeVelocity=0;return true;}fall.nativeVelocity=Math.fround(fall.nativeVelocity+CONNECT_NATIVE.gravityPerFrame);fall.nativeY+=fall.nativeVelocity;fall.x+=(fall.targetX-fall.x)*.2;fall.y=fall.startY+fall.nativeY*fall.scale;}return false;}
+export function connectBlink(age,winning=false){const half=winning?CONNECT_NATIVE.winBlinkHalfDuration:.4,peak=winning?CONNECT_NATIVE.winBlinkAlpha:.3,t=Math.max(0,age)%(half*2);return peak*(t<half?t/half:2-t/half);}

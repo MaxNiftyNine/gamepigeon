@@ -1,0 +1,13 @@
+import {axisDegreesQuaternion,multiplyQuaternion} from '../ball-texture.js';
+import {POOL_TABLE,canvasVelocityToNative,nativeVelocityToCanvas} from './pool-table.js';
+// PoolBall init 0x1000b6d90, PoolScene update 0x1000ef5f0. These dimensions
+// are SpriteKit points, with original catalog scale (3x) applied only once.
+export const POOL_VISUAL=Object.freeze({ballSize:13.3333,shadeSize:21*14.0333/20,shadowSize:25*13.5333/20,shadowAlpha:.5,shadowOffset:3,cueWidth:15,cueHeight:246,cueShadowHeight:252,cueDistance:133,cueShadowOffset:4,pullback:246,strikeDuration:.05,fadeDelay:.2,fadeOut:.25,fadeIn:.15});
+export const visualScale=(POOL_TABLE.scaleX+POOL_TABLE.scaleY)/2;
+export function initializeBallVisual(ball){ball.rollQuaternion=axisDegreesQuaternion([0,0,-1]);ball.textureQuaternion=axisDegreesQuaternion([.0010000000474974513,0,0],3.14159);ball.visualVersion=0;}
+export function advanceBallVisual(ball,nativeVx,nativeVy,angularVelocity){let w=angularVelocity;if(Math.abs(w)<3)w*=.8;const increment=[nativeVx/-20,nativeVy/-20,w/10];if(!Math.hypot(...increment))return;const q=multiplyQuaternion(ball.rollQuaternion,axisDegreesQuaternion(increment,3.14159)),length=Math.hypot(...q);ball.rollQuaternion=q.map(v=>v/length);ball.textureQuaternion=ball.rollQuaternion;ball.visualVersion++;}
+export function observePoolRoll(physics){const update=()=>{for(const [ball,body] of physics.bodies){if(ball.out||!body.isActive())continue;const v=body.getLinearVelocity(),p=body.getPosition(),angular=body.getAngularVelocity();ball.presentationSnapshot={x:p.x*100,y:p.y*100,vx:v.x*100,vy:v.y*100,angular};advanceBallVisual(ball,v.x*100,v.y*100,angular);}};physics.world.on('post-step',update);return ()=>physics.world.off('post-step',update);}
+export function cuePose(ball,angle,pullback=0){const native=canvasVelocityToNative(Math.cos(angle),Math.sin(angle)),length=Math.hypot(native.x,native.y),distance=(POOL_VISUAL.cueDistance+pullback)/.67,delta=nativeVelocityToCanvas(-native.x/length*distance,-native.y/length*distance);return {x:ball.x+delta.x,y:ball.y+delta.y,angle:angle+Math.PI/2,matrix:[POOL_TABLE.scaleX*native.x/length,-POOL_TABLE.scaleY*native.y/length,POOL_TABLE.scaleX*native.y/length,POOL_TABLE.scaleY*native.x/length]};}
+// Native touch release moves the power cue to zero over .05 seconds, then
+// performs shoot2. Cue/shadow then wait .2 seconds and fade for .25s.
+export function cueAnimation(age,power){return {pullback:POOL_VISUAL.pullback*power/100*Math.max(0,1-age/POOL_VISUAL.strikeDuration),alpha:Math.max(0,Math.min(1,1-(age-POOL_VISUAL.strikeDuration-POOL_VISUAL.fadeDelay)/POOL_VISUAL.fadeOut)),aimAlpha:Math.max(0,Math.min(1,1-(age-POOL_VISUAL.strikeDuration)/POOL_VISUAL.fadeOut))};}

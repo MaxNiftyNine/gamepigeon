@@ -1,0 +1,17 @@
+// Particle update 0x100247274; Sea emission parameters are native frame units.
+const f=Math.fround;
+export function advanceSeaParticle(p){if(p.life<1)return;p.vy=f(p.vy+(p.gravity||0));p.vx=f(p.vx*p.vs);p.vy=f(p.vy*p.vs);p.x+=p.vx;p.y+=p.vy;p.alpha*=p.va;p.rotation+=p.vr;p.scale+=p.vsc;p.life--;}
+const velocity=(random,amount)=>{const sign=random(),size=random();return f(.1+(sign>.5?1:-1)*amount*size);};
+function particle(random,kind){const dead=kind==='wreck',splash=kind==='splash',hit=kind==='hitSmoke';return {kind,x:0,y:0,vx:velocity(random,dead?.5:1.2),vy:velocity(random,dead?.5:1.2),vr:f(-.1+.2*random()),rotation:random()*Math.PI*2,vsc:f(dead?.01:splash?.02:.03),scale:dead?.01+.04*random():(splash||hit)?.1+.2*random():.2+.5*random(),blend:splash?0:.5+.5*random(),vs:f(dead?.97:splash?.9:.93),va:f(dead?.97:splash?.9:.93),life:dead?220:180,alpha:dead?.35+.35*random():.5+.4*random()};}
+export function seaImpactParticles(result,random=Math.random){if(result.hit&&!result.sunk)return [];const particles=[];
+  if(result.sunk){const ship=result.sunk;for(let i=0;i<15*ship.length;i++){const x=30*random()-15,y=37*ship.length*random()-15,p=particle(random,'smoke');p.x=ship.x*37+18.5+(ship.vertical?x:y);p.y=-(ship.y*37+18.5+(ship.vertical?y:x));if(!ship.vertical)[p.vx,p.vy]=[-p.vy,p.vx];particles.push(p);}}
+  else for(let i=0;i<5;i++){const x=4*random()-2,y=4*random()-2,p=particle(random,'splash');p.x=result.x*37+18.5+x;p.y=-(result.y*37+18.5)+y;particles.push(p);}return particles;
+}
+export class SeaParticles {
+  constructor(random=Math.random){this.random=random;this.splashImage=null;this.particles=[[],[]];this.frame=0;this.remainder=0;}
+  impact(result){this.particles[result.player-1].push(...seaImpactParticles(result,this.random));}
+  update(dt,rules,visiblePlayer){this.remainder+=Math.max(0,dt);while(this.remainder+1e-12>=1/60){this.remainder-=1/60;this.frame++;for(const group of this.particles){for(const p of group)advanceSeaParticle(p);for(let i=group.length-1;i>=0;i--)if(!group[i].life)group.splice(i,1);}if(!visiblePlayer)continue;
+      const index=visiblePlayer-1,shots=rules.shots[index];for(const ship of rules.ships[2-visiblePlayer]){const dead=ship.cells.every(([x,y])=>shots.get(`${x},${y}`));for(const [x,y] of ship.cells){if(!shots.get(`${x},${y}`))continue;if(dead){if(this.random()>=.01)continue;const p=particle(this.random,'wreck');p.x=x*37+18.5;p.y=-(y*37+18.5);this.particles[index].push(p);}else if(this.frame%2===0){for(let i=0;i<Math.floor(1+1.5*this.random());i++){const p=particle(this.random,'hitSmoke');p.x=x*37+18.5;p.y=-(y*37+18.5);this.particles[index].push(p);}}}}
+    }}
+  draw(ctx,image,player,cellSize){if(!image||!player)return;if(!this.splashImage&&typeof document!=='undefined'){const canvas=document.createElement('canvas');canvas.width=image.width;canvas.height=image.height;const tint=canvas.getContext('2d');tint.drawImage(image,0,0);const data=tint.getImageData(0,0,image.width,image.height);for(let i=0;i<data.data.length;i+=4){data.data[i]*=203/255;data.data[i+1]*=227/255;}tint.putImageData(data,0,0);this.splashImage=canvas;}const scale=cellSize/37;for(const p of this.particles[player-1]){ctx.save();ctx.translate(40+p.x*scale,151-p.y*scale);ctx.rotate(-p.rotation);ctx.globalAlpha*=p.alpha;const size=image.width/3*p.scale*scale;if(p.kind!=='splash') ctx.filter=`brightness(${1-p.blend})`;ctx.drawImage(p.kind==='splash'?(this.splashImage||image):image,-size/2,-size/2,size,size);ctx.restore();}}
+}

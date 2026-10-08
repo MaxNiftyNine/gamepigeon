@@ -1,0 +1,28 @@
+@font-face{font-family:GP;src:url('/assets/SF-UI-Display-Bold.otf');font-weight:700}@font-face{font-family:GP;src:url('/assets/SF-UI-Display-Regular.otf')}*{box-sizing:border-box}body{margin:0;font-family:GP,-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:#ececf0;color:#222}button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 16px;color:#007aff;background:#eaf3ff}button:disabled{opacity:.4;cursor:default}button.primary{background:#007aff;color:white}#app{max-width:840px;margin:0 auto;min-height:100dvh;background:#fff}header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #ddd;height:68px}h1{font-size:22px;margin:0}header span{color:#888;font-size:13px}.intro{text-align:center;padding:25px 20px 16px}.intro h2{font-size:23px;margin:0 0 8px}.intro p{color:#777;margin:0}.names{display:flex;gap:12px;padding:0 24px 20px}.names label{flex:1;font-size:13px;color:#777}.names input{width:100%;margin-top:6px;padding:10px;border:1px solid #ddd;border-radius:8px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px 15px;padding:15px 24px 34px}.game-card{background:none;padding:0;color:#333;display:flex;flex-direction:column;gap:9px;align-items:center;font-size:15px}.game-card img{width:100%;aspect-ratio:1.34;object-fit:cover;border-radius:15px;background:#eee}.game-card:hover img{outline:3px solid #007aff}.stage{max-width:460px;margin:0 auto}.scorebar{display:flex;justify-content:space-between;gap:10px;padding:12px 15px;background:#fafafa}.player{padding:5px 12px;border-radius:20px;color:#888;font-size:14px}.player.active{background:#007aff;color:#fff}.status{margin:0;text-align:center;min-height:44px;padding:10px 12px;font-size:15px;background:#fff}canvas{width:100%;height:auto;display:block;touch-action:none;user-select:none}.controls{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:9px;padding:14px;background:#fff}.controls label{font-size:13px}.controls input[type=range]{width:125px}.controls p{width:100%;margin:0;font-size:13px;text-align:center;color:#777}.overlay{position:fixed;inset:0;background:#ececf0;display:flex;align-items:center;justify-content:center;z-index:20;padding:24px}.modal{background:#fff;border-radius:20px;max-width:370px;width:100%;padding:30px;text-align:center;box-shadow:0 12px 60px #0004}.modal h2{margin:0 0 12px}.modal p{color:#666;line-height:1.5}.modal button{margin:6px}.foot{text-align:center;color:#aaa;font-size:12px;padding:20px} @media(max-width:520px){.grid{gap:20px 12px;padding:12px 18px}.game-card{font-size:13px}header{padding:12px 15px}.intro{padding-top:20px}.names{padding:0 18px 12px}}
+
+.ship-picker,.control-row{display:flex;flex-wrap:wrap;gap:5px;justify-content:center}.ship-picker button{padding:6px 10px}.ship-picker button.selected{background:#007aff;color:#fff}
+
+/* Keep the board's logical coordinates unchanged while fitting the viewport. */
+html,body{height:100%;overflow:hidden}
+#app{height:100dvh;min-height:0;max-width:1200px;display:flex;flex-direction:column;overflow:hidden}
+header{flex:0 0 56px;height:56px;padding:8px 16px}
+.names{flex:0 0 auto;padding:14px 24px 10px}
+.grid{flex:1;min-height:0;grid-template-rows:repeat(3,minmax(0,1fr));gap:12px;padding:12px 24px 20px}
+.game-card{min-height:0;gap:5px;overflow:hidden}
+.game-card img{flex:1;min-height:0;max-height:calc(100% - 24px);width:100%;aspect-ratio:auto;object-fit:contain}
+.stage{flex:1;min-height:0;width:100%;max-width:none;display:flex;flex-direction:column;margin:0}
+.scorebar{flex:0 0 auto;padding:6px 14px}
+.status{flex:0 0 auto;min-height:36px;padding:7px 12px;font-size:14px}
+.game-layout{flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) clamp(110px,22vw,210px);gap:12px;padding:0 16px 12px}
+.board-space{min-width:0;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.board-space canvas{flex:none;max-width:100%;max-height:100%;width:auto;height:auto}
+.control-space{min-width:0;min-height:0;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#fafafa;border-radius:12px}
+.controls{width:100%;padding:10px;flex-direction:column;align-items:stretch;gap:10px;background:transparent}
+.controls button{width:100%;padding:9px 8px;overflow-wrap:anywhere}
+.controls label{display:flex;flex-direction:column;gap:5px;min-width:0}
+.controls input[type=range],.controls select{width:100%;max-width:100%;min-width:0}
+.controls details{width:100%;font-size:13px}.controls details label,.controls details button{margin-top:10px}
+.control-row{width:100%;flex-direction:column}.ship-picker{width:100%;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.ship-picker button{padding:6px 2px}
+.overlay{background:transparent;padding:14px}
+.modal{padding:22px;max-width:340px;box-shadow:0 8px 40px #0005;border:1px solid #ddd}
+@media(max-width:600px){header{height:48px;flex-basis:48px;padding:6px 10px}h1{font-size:18px}header button{padding:8px 10px}.game-layout{grid-template-columns:minmax(0,1fr) 104px;gap:6px;padding:0 6px 6px}.controls{padding:7px;gap:8px}.controls button{font-size:12px;padding:8px 4px}.controls p,.controls label{font-size:11px}.player{font-size:12px;padding:4px 8px}.status{font-size:12px;min-height:32px;padding:6px}.names{padding:10px 14px 6px}.grid{padding:8px 14px 12px;gap:10px}.modal{max-width:290px;padding:18px}.modal h2{font-size:20px}}
