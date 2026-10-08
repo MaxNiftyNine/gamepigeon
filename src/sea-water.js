@@ -1,3 +1,4 @@
+import {assetUrl} from './asset-url.js';
 // SeaScene's original water2.fsh. SpriteKit's implicit inputs are declared here.
 // Native bg_node fills the scene; the browser's local boards omit native camera pan.
 export class SeaWaterSurface {
@@ -6,7 +7,7 @@ export class SeaWaterSurface {
     if(!image||!this.canvas)return;
     try{this.gl=this.canvas.getContext('webgl',{alpha:false,preserveDrawingBuffer:true,antialias:false});}catch{this.gl=null;}
     if(!this.gl)return;
-    this.ready=fetch('./assets/water2.fsh').then(r=>{if(!r.ok)throw new Error('Water shader unavailable');return r.text();}).then(source=>{if(!this.destroyed)this.initialize(source);}).catch(()=>{this.program=null;});
+    this.ready=fetch(assetUrl('water2.fsh')).then(r=>{if(!r.ok)throw new Error('Water shader unavailable');return r.text();}).then(source=>{if(!this.destroyed)this.initialize(source);}).catch(()=>{this.program=null;});
   }
   initialize(source){const gl=this.gl,compile=(type,code)=>{const shader=gl.createShader(type);gl.shaderSource(shader,code);gl.compileShader(shader);if(!gl.getShaderParameter(shader,gl.COMPILE_STATUS)){gl.deleteShader(shader);throw new Error('Water shader compilation failed');}return shader;};
     const vertex=compile(gl.VERTEX_SHADER,'attribute vec2 a_position; varying vec2 v_tex_coord; void main(){v_tex_coord=(a_position+1.0)*0.5;gl_Position=vec4(a_position,0.0,1.0);}');
